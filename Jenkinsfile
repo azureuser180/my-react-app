@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'your-dockerhub-username/my-react-app'
+        DOCKER_IMAGE = 'ashraf313/my-react-app'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
     }
@@ -10,7 +10,8 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git url: 'https://git@github.com:azureuser180/my-react-app.git', branch: 'main'
+                // ✅ Correct HTTPS URL format
+                git url: 'https://github.com/azureuser180/my-react-app.git', branch: 'main'
             }
         }
 
@@ -48,4 +49,3 @@ pipeline {
         }
     }
 }
-
