@@ -3,14 +3,13 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = 'ashraf313/my-react-app'
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-creds'
     }
 
     stages {
         stage('Clone') {
             steps {
-                // ✅ Correct HTTPS URL format
                 git url: 'https://github.com/azureuser180/my-react-app.git', branch: 'main'
             }
         }
@@ -30,10 +29,13 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
+                    // Build Docker image
+                    def image = docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
+
+                    // Push image to Docker Hub
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
-                        def image = docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
-                        image.push()
-                        image.push('latest')
+                        image.push()              // Push tagged image
+                        image.push('latest')      // Optionally push 'latest' tag
                     }
                 }
             }
@@ -42,10 +44,11 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Image built and pushed to Docker Hub!"
+            echo "🎉 Docker image pushed: ${DOCKER_IMAGE}:${IMAGE_TAG}"
         }
         failure {
-            echo "❌ Build failed"
+            echo "❌ Build or push failed. Check logs for details."
         }
     }
 }
+
